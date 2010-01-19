@@ -839,21 +839,48 @@ jQuery.fn.extend({
 	},
 
 	live: function( type, data, fn ) {
+		// shift arguments if data argument was omitted
 		if ( jQuery.isFunction( data ) ) {
 			fn = data;
 			data = undefined;
 		}
 
-		jQuery( this.context ).bind( liveConvert( type, this.selector ), {
-			data: data, selector: this.selector, live: type
-		}, fn );
-
+		jQuery.live( this.selector, this.context, type, data, fn );
 		return this;
 	},
 
 	die: function( type, fn ) {
-		jQuery( this.context ).unbind( liveConvert( type, this.selector ), fn ? { guid: fn.guid + this.selector + type } : null );
+		jQuery.die( this.selector, this.context, type, fn );
 		return this;
+	}
+});
+
+jQuery.extend({
+	live: function( selector, context, type, data, fn ) {
+		// shift arguments if context argument was omited
+		if ( typeof type != "string" ) {
+			fn = data;
+			data = type;
+			type = context;
+			context = document;
+		}
+		// shift arguments if data argument was omitted
+		if ( jQuery.isFunction( data ) ) {
+			fn = data;
+			data = undefined;
+		}		
+		
+		jQuery ( context ).bind( liveConvert( type, selector ), { data: data, selector: selector, live: type }, fn );
+	},
+	
+	die: function( selector, context, type, fn ) {
+		// shift arguments if context was omitted
+		if ( typeof type != "string" ) {
+			fn = type;
+			type = context;
+			context = document;
+		}
+		jQuery( context ).unbind( liveConvert( type, selector ), fn ? { guid: fn.guid + selector + type } : null );
 	}
 });
 
